@@ -1,26 +1,31 @@
-name: Build ARM32 EXE
+name: Build Thorium ARM32
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
+  build-arm32:
+    runs-on: windows-latest
+    name: Build ARM32
     steps:
       - uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y clang build-essential cmake
-
-      - name: Compile ARM32 EXE
         run: |
-          mkdir -p build
-          clang -target armv7-windows-gnu -o build/programa_arm32.exe src/*.cpp
+          choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended --passive --norestart"
+          choco install python3
 
-      - name: Upload artifact
+      - name: Build Thorium for ARM32
+        run: |
+          # Aquí van los comandos específicos de compilación para ARM32
+          # Por ejemplo, siguiendo la documentación oficial de Thorium:
+          # git submodule update --init --recursive
+          # python3 build.py --arch=armv7
+
+      - name: Upload ARM32 artifact
         uses: actions/upload-artifact@v4
         with:
-          name: programa_arm32
-          path: build/programa_arm32.exe
+          name: thorium-arm32
+          path: path\to\output\thorium_arm32.exe
