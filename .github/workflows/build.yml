@@ -9,7 +9,7 @@ jobs:
   build-arm32:
     runs-on: ubuntu-latest
     steps:
-      # 1️⃣ Clonar el repositorio Thorium (usa tu fork aquí)
+      # 1️⃣ Clonar tu fork de Thorium
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -17,42 +17,48 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential python3 git clang lld cmake ninja-build pkg-config
+          sudo apt-get install -y build-essential python3 python3-pip git clang lld cmake ninja-build pkg-config
           # Instalar wine para probar el .exe
           sudo dpkg --add-architecture i386
           sudo apt-get update
           sudo apt-get install -y wine32 wine64
 
-      # 3️⃣ Instalar depot_tools (para GN y Ninja)
+      # 3️⃣ Instalar depot_tools (GN, Ninja, gclient…)
       - name: Install depot_tools
         run: |
           git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git ~/depot_tools
           echo "$HOME/depot_tools" >> $GITHUB_PATH
 
-      # 4️⃣ Inicializar submódulos del fork de Thorium
+      # 4️⃣ Inicializar depot_tools con gclient
+      - name: Init depot_tools
+        run: |
+          gclient
+
+      # 5️⃣ Inicializar submódulos del fork de Thorium
       - name: Init submodules
         run: |
           git submodule update --init --recursive
 
-      # 5️⃣ Generar archivos de build para ARM32
+      # 6️⃣ Generar archivos de build para ARM32
       - name: Generate build files with GN
         run: |
           gn gen out/thorium --args="target_os=\"win\" target_cpu=\"arm\" is_debug=false"
 
-      # 6️⃣ Compilar Thorium ARM32 con Ninja
+      # 7️⃣ Compilar Thorium ARM32 con Ninja
       - name: Build Thorium
         run: |
           autoninja -C out/thorium thorium_shell
 
-      # 7️⃣ (Opcional) Probar que el .exe arranca en Wine
+      # 8️⃣ (Opcional) Probar el .exe en Wine
       - name: Test build with Wine
         run: |
           cd out/thorium
           wine ./thorium_shell.exe || true
 
-      # 8️⃣ Subir el ejecutable como artefacto
+      # 9️⃣ Subir ejecutable como artefacto
       - name: Upload ARM32 artifact
         uses: actions/upload-artifact@v4
         with:
           name: thorium-arm32
           path: out/thorium/thorium_shell.exe
+
