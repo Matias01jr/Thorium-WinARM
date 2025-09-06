@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y clang build-essential cmake
@@ -20,7 +20,7 @@ jobs:
           clang -target armv7-windows-gnu -o build/programa_arm32.exe src/*.cpp
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: programa_arm32
           path: build/programa_arm32.exe
