@@ -17,15 +17,22 @@ jobs:
           choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended --passive --norestart"
           choco install python3
 
+      - name: Set up environment
+        run: |
+          ./trunk.sh
+          ./setup.sh --arm
+
+      - name: Configure build arguments
+        run: |
+          gn args out\thorium
+          # Asegúrate de configurar los argumentos correctamente
+
       - name: Build Thorium for ARM32
         run: |
-          # Aquí van los comandos específicos de compilación para ARM32
-          # Por ejemplo, siguiendo la documentación oficial de Thorium:
-          # git submodule update --init --recursive
-          # python3 build.py --arch=armv7
+          autoninja -C out\thorium thorium_shell
 
       - name: Upload ARM32 artifact
         uses: actions/upload-artifact@v4
         with:
           name: thorium-arm32
-          path: path\to\output\thorium_arm32.exe
+          path: out\thorium\thorium_shell.exe
